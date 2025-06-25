@@ -104,6 +104,15 @@ def main():
         st.sidebar.subheader("Constraints")
         max_speed_kmh = st.sidebar.slider("Max Speed (km/h)", 40, 80, 55)
 
+        # --- Ironman Parameters ---
+        st.sidebar.header("Ironman Swim, Run & Transitions")
+        swim_length_km = st.sidebar.number_input("Swim Length (km)", min_value=1.0, max_value=5.0, value=3.8, step=0.1)
+        swim_speed_kmh = st.sidebar.number_input("Swim Speed (km/h)", min_value=1.0, max_value=5.0, value=3.5, step=0.1)
+        t1_time_min = st.sidebar.number_input("T1 (Swim-Bike) Transition (min)", min_value=1, max_value=30, value=8)
+        run_length_km = st.sidebar.number_input("Run Length (km)", min_value=10.0, max_value=60.0, value=42.2, step=0.1)
+        run_speed_kmh = st.sidebar.number_input("Run Speed (km/h)", min_value=5.0, max_value=20.0, value=10.0, step=0.1)
+        t2_time_min = st.sidebar.number_input("T2 (Bike-Run) Transition (min)", min_value=1, max_value=30, value=5)
+
         # Run Simulation
         distances, elevations, velocities, times, powers, total_distance, total_elevation_gain = run_simulation(
             points, power_uphill, power_downhill, power_flat, uphill_gradient, downhill_gradient,
@@ -122,6 +131,28 @@ def main():
         col2.metric("Avg Speed", f"{(total_distance / 1000) / total_time_hours:.2f} km/h")
         col3.metric("Avg Power", f"{np.average(powers, weights=times):.0f} W")
         col4.metric("Elevation Gain", f"{total_elevation_gain:.0f} m")
+
+        # --- Ironman Total Time Estimation ---
+        swim_time_hr = swim_length_km / swim_speed_kmh
+        run_time_hr = run_length_km / run_speed_kmh
+        t1_hr = t1_time_min / 60
+        t2_hr = t2_time_min / 60
+        total_ironman_time_hr = swim_time_hr + total_time_hours + run_time_hr + t1_hr + t2_hr
+        total_ironman_hours = int(total_ironman_time_hr)
+        total_ironman_minutes = int((total_ironman_time_hr * 60) % 60)
+        total_ironman_seconds = int((total_ironman_time_hr * 3600) % 60)
+
+        st.subheader("Ironman Total Time Estimation")
+        st.markdown(f"""
+        | Segment   | Distance | Speed      | Time         |
+        |-----------|----------|------------|--------------|
+        | Swim      | {swim_length_km:.1f} km | {swim_speed_kmh:.1f} km/h | {int(swim_time_hr)}h {int((swim_time_hr*60)%60)}m |
+        | T1        | -        | -          | {t1_time_min} min         |
+        | Bike      | {total_distance/1000:.1f} km | {(total_distance/1000)/total_time_hours:.2f} km/h | {hours}h {minutes}m |
+        | T2        | -        | -          | {t2_time_min} min         |
+        | Run       | {run_length_km:.1f} km | {run_speed_kmh:.1f} km/h | {int(run_time_hr)}h {int((run_time_hr*60)%60)}m |
+        """)
+        st.success(f"Estimated Total Ironman Time: {total_ironman_hours}h {total_ironman_minutes}m {total_ironman_seconds}s")
 
         # --- Visualizations ---
         st.header("Performance Analysis")

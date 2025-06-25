@@ -23,6 +23,14 @@ MAX_SPEED_KMH = 55.0 # km/h
 AIR_DENSITY = 1.225  # kg/m^3
 GRAVITY = 9.81  # m/s^2
 
+# --- Ironman Additional Parameters ---
+SWIM_LENGTH_KM = 3.8  # Ironman swim (km)
+RUN_LENGTH_KM = 42.2  # Ironman run (km)
+SWIM_SPEED_KMH = 3.5  # Typical swim speed (km/h)
+RUN_SPEED_KMH = 10.0  # Typical run speed (km/h)
+T1_TIME_MIN = 8        # Swim-to-bike transition (min)
+T2_TIME_MIN = 5        # Bike-to-run transition (min)
+
 def get_power(gradient):
     """Determines power output based on gradient."""
     if gradient > UPHILL_GRADIENT:
@@ -133,6 +141,22 @@ def main():
     print(f"Average speed: {(total_distance / 1000) / total_time_hours:.2f} km/h")
     print(f"Maximum speed: {max_speed_kmh:.2f} km/h")
     print(f"Average power: {weighted_avg_power:.2f} W")
+
+    # --- Ironman Total Time Estimation ---
+    swim_time_hr = SWIM_LENGTH_KM / SWIM_SPEED_KMH
+    run_time_hr = RUN_LENGTH_KM / RUN_SPEED_KMH
+    t1_hr = T1_TIME_MIN / 60
+    t2_hr = T2_TIME_MIN / 60
+    total_ironman_time_hr = swim_time_hr + total_time_hours + run_time_hr + t1_hr + t2_hr
+    total_ironman_hours = int(total_ironman_time_hr)
+    total_ironman_minutes = int((total_ironman_time_hr * 60) % 60)
+    total_ironman_seconds = int((total_ironman_time_hr * 3600) % 60)
+    print(f"\n--- Ironman Total Time Estimation ---")
+    print(f"Swim: {SWIM_LENGTH_KM} km @ {SWIM_SPEED_KMH} km/h = {int(swim_time_hr)}h {int((swim_time_hr*60)%60)}m")
+    print(f"Bike: {total_distance / 1000:.2f} km @ {(total_distance / 1000) / total_time_hours:.2f} km/h = {hours}h {minutes}m")
+    print(f"Run: {RUN_LENGTH_KM} km @ {RUN_SPEED_KMH} km/h = {int(run_time_hr)}h {int((run_time_hr*60)%60)}m")
+    print(f"T1: {T1_TIME_MIN} min, T2: {T2_TIME_MIN} min")
+    print(f"Estimated Total Ironman Time: {total_ironman_hours}h {total_ironman_minutes}m {total_ironman_seconds}s")
 
     # --- Interactive Visualization ---
     
