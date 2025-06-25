@@ -107,7 +107,13 @@ def main():
         # --- Ironman Parameters ---
         st.sidebar.header("Ironman Swim, Run & Transitions")
         swim_length_km = st.sidebar.number_input("Swim Length (km)", min_value=1.0, max_value=5.0, value=3.8, step=0.1)
-        swim_speed_kmh = st.sidebar.number_input("Swim Speed (km/h)", min_value=1.0, max_value=5.0, value=3.5, step=0.1)
+        # Swim pace as min:sec per 100m
+        st.sidebar.markdown("**Swim Pace (per 100m)**")
+        swim_pace_min = st.sidebar.number_input("Minutes", min_value=0, max_value=20, value=1)
+        swim_pace_sec = st.sidebar.number_input("Seconds", min_value=0, max_value=59, value=40)
+        swim_pace_total_sec = swim_pace_min * 60 + swim_pace_sec
+        # Convert pace (sec/100m) to speed (km/h): speed_kmh = 0.1 km / (pace_sec/3600)
+        swim_speed_kmh = 0.1 / (swim_pace_total_sec / 3600) if swim_pace_total_sec > 0 else 1.0
         t1_time_min = st.sidebar.number_input("T1 (Swim-Bike) Transition (min)", min_value=1, max_value=30, value=8)
         run_length_km = st.sidebar.number_input("Run Length (km)", min_value=10.0, max_value=60.0, value=42.2, step=0.1)
         run_speed_kmh = st.sidebar.number_input("Run Speed (km/h)", min_value=5.0, max_value=20.0, value=10.0, step=0.1)
@@ -144,12 +150,12 @@ def main():
 
         st.subheader("Ironman Total Time Estimation")
         st.markdown(f"""
-        | Segment   | Distance | Speed      | Time         |
-        |-----------|----------|------------|--------------|
-        | Swim      | {swim_length_km:.1f} km | {swim_speed_kmh:.1f} km/h | {int(swim_time_hr)}h {int((swim_time_hr*60)%60)}m |
-        | T1        | -        | -          | {t1_time_min} min         |
+        | Segment   | Distance | Pace/Speed      | Time         |
+        |-----------|----------|----------------|--------------|
+        | Swim      | {swim_length_km:.1f} km | {swim_pace_min}:{swim_pace_sec:02d} /100m | {int(swim_time_hr)}h {int((swim_time_hr*60)%60)}m |
+        | T1        | -        | -              | {t1_time_min} min         |
         | Bike      | {total_distance/1000:.1f} km | {(total_distance/1000)/total_time_hours:.2f} km/h | {hours}h {minutes}m |
-        | T2        | -        | -          | {t2_time_min} min         |
+        | T2        | -        | -              | {t2_time_min} min         |
         | Run       | {run_length_km:.1f} km | {run_speed_kmh:.1f} km/h | {int(run_time_hr)}h {int((run_time_hr*60)%60)}m |
         """)
         st.success(f"Estimated Total Ironman Time: {total_ironman_hours}h {total_ironman_minutes}m {total_ironman_seconds}s")
